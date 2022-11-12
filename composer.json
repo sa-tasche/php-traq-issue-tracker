@@ -10,7 +10,7 @@
     "require-dev": {
         "filp/whoops": "^2.14"
     },
-    "license": "GPLv3",
+    "license": "GPL-3.0-only",
     "authors": [
         {
             "name": "Jack Polgar",
