@@ -1,8 +1,8 @@
 <?php
 /*!
  * Traq
- * Copyright (C) 2009-2022 Jack Polgar
- * Copyright (C) 2012-2022 Traq.io
+ * Copyright (C) 2009-2024 Jack Polgar
+ * Copyright (C) 2012-2024 Traq.io
  * https://github.com/nirix
  * http://traq.io
  *
@@ -23,16 +23,16 @@
 
 namespace traq\controllers;
 
-use avalon\core\Controller;
-use avalon\core\Load;
-use avalon\Database;
-use avalon\database\PDO;
-use avalon\http\RedirectResponse;
-use avalon\http\Request;
-use avalon\http\Response;
-use avalon\http\Router;
-use avalon\output\Body;
-use avalon\output\View;
+use Avalon\Core\Controller;
+use Avalon\Core\Load;
+use Avalon\Database;
+use Avalon\Database\PDO;
+use Avalon\Http\RedirectResponse;
+use Avalon\Http\Request;
+use Avalon\Http\Response;
+use Avalon\Http\Router;
+use Avalon\Output\Body;
+use Avalon\Output\View;
 
 use traq\models\User;
 use traq\models\Project;
@@ -311,7 +311,10 @@ class AppController extends Controller
 
     protected function show404()
     {
-        return $this->show_404();
+        header('HTTP/1.0 404 Not Found');
+        View::set('request', Request::requestUri());
+        $this->render['view'] = 'error/404';
+        $this->render['action'] = false;
     }
 
     /**

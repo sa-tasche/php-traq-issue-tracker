@@ -4,11 +4,14 @@
     "type": "project",
     "config": {
         "platform": {
-            "php": "8.0.2"
+            "php": "8.3.0"
+        },
+        "preferred-install": {
+            "avalon/framework": "source"
         }
     },
     "require-dev": {
-        "filp/whoops": "^2.14"
+        "filp/whoops": "^2.15"
     },
     "license": "GPL-3.0-only",
     "authors": [
@@ -20,15 +23,14 @@
     "minimum-stability": "stable",
     "require": {
         "erusev/parsedown-extra": "^0.8.1",
-        "symfony/mailer": "^6.0",
-        "ramsey/uuid": "^4.5"
+        "symfony/mailer": "^6.4",
+        "ramsey/uuid": "^4.7",
+        "avalon/framework": "dev-master"
     },
     "autoload": {
         "psr-4": {
             "traq\\": "vendor/traq",
-            "Traq\\": "src/Traq",
-            "avalon\\": "vendor/avalon",
-            "Avalon\\": "vendor/avalon"
+            "Traq\\": "src/Traq"
         }
     }
 }

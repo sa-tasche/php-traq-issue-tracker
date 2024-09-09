@@ -62,6 +62,8 @@ class Tickets extends AppController
         'delete' => array('_check_permission')
     );
 
+    protected $custom_fields = [];
+
     /**
      * Custom constructor, we need to do extra stuff.
      */
@@ -89,7 +91,8 @@ class Tickets extends AppController
     {
         // Atom feed
         $this->feeds[] = [
-            Request::requestUri() . ".atom", l('x_ticket_feed', $this->project->name)
+            Request::requestUri() . ".atom",
+            l('x_ticket_feed', $this->project->name)
         ];
 
         // Create ticket filter query
@@ -176,9 +179,11 @@ class Tickets extends AppController
         $customFieldValues = CustomFieldValue::fetch_all();
         foreach ($customFieldValues as $customFieldValue) {
             // $customFields[$customFieldValue->custom_field_id]['values'][$customFieldValue->ticket_id] = $customFieldValue->value;
-            $customField = $customFields[$customFieldValue->custom_field_id];
-            $slug = str_replace('-', '_', $customField->slug);
-            $ticketCustomFields[$customFieldValue->ticket_id][$slug] = $customFieldValue->value;
+            if (isset($customFields[$customFieldValue->custom_field_id])) {
+                $customField = $customFields[$customFieldValue->custom_field_id];
+                $slug = str_replace('-', '_', $customField->slug);
+                $ticketCustomFields[$customFieldValue->ticket_id][$slug] = $customFieldValue->value;
+            }
         }
 
         // Add to tickets array
@@ -205,6 +210,10 @@ class Tickets extends AppController
     {
         // Fetch the ticket from the database and send it to the view.
         $ticket = Ticket::select()->where("ticket_id", $ticket_id)->where("project_id", $this->project->id)->exec()->fetch();
+
+        if (!$ticket) {
+            return $this->show404();
+        }
 
         // If the ticket is private, only allow admins, projects members and the creator to view the ticket.
         if ($ticket->is_private) {

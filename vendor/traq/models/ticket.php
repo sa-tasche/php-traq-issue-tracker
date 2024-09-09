@@ -73,8 +73,14 @@ class Ticket extends Model
     );
 
     protected static $_belongs_to = array(
-        'user', 'project', 'milestone', 'component',
-        'priority', 'severity', 'type', 'status',
+        'user',
+        'project',
+        'milestone',
+        'component',
+        'priority',
+        'severity',
+        'type',
+        'status',
 
         // Relations with different models and such
         'assigned_to' => array('model' => 'User'),
@@ -94,6 +100,8 @@ class Ticket extends Model
     protected $_save_queue         = array();
     protected $_related_tickets    = array();
     protected $_custom_field_queue = array();
+
+    protected $_custom_fields = [];
 
     /**
      * Returns the URI for the ticket.
@@ -159,7 +167,7 @@ class Ticket extends Model
             // Get the next ticket id and update
             // the value for the next ticket.
             $this->ticket_id = $this->project->next_tid;
-            $this->project->next_tid++;
+            $this->project->set('next_tid', $this->project->next_tid + 1);
         }
 
         // Update ticket open/closed state if ticket status has changed.
@@ -412,14 +420,21 @@ class Ticket extends Model
             }
             // Attaching a file?
             elseif ($field == 'attachment' and isset($_FILES['attachment']) and isset($_FILES['attachment']['name'])) {
-                $this->_save_queue[] = new Attachment(array(
-                    'name' => $_FILES['attachment']['name'],
-                    'contents' => base64_encode(file_get_contents($_FILES['attachment']['tmp_name'])),
-                    'type' => $_FILES['attachment']['type'],
-                    'size' => $_FILES['attachment']['size'],
-                    'user_id' => $user->id,
-                    'ticket_id' => $this->id
-                ));
+                $tmpName = $_FILES['attachment']['tmp_name'];
+
+                if (!strlen($tmpName)) {
+                    $this->_add_error('attachment', l('errors.attachments.unable_to_upload_file'));
+                } else {
+                    $this->_save_queue[] = new Attachment(array(
+                        'name' => $_FILES['attachment']['name'],
+                        'contents' => base64_encode(file_get_contents($_FILES['attachment']['tmp_name'])),
+                        'type' => $_FILES['attachment']['type'],
+                        'size' => $_FILES['attachment']['size'],
+                        'user_id' => $user->id,
+                        'ticket_id' => $this->id
+                    ));
+                }
+
                 $change['action'] = 'add_attachment';
             }
 
@@ -470,8 +485,6 @@ class Ticket extends Model
 
         // Save
         if ($this->save()) {
-            $this->project = Project::find($this->project_id);
-
             // Closed notification
             if (isset($this->_is_closing) and $this->_is_closing) {
                 Notification::send_for_ticket('closed', $this);
@@ -486,7 +499,7 @@ class Ticket extends Model
             }
 
             // Assigned to notification
-            if (in_array('assigned_to_id', $this->_changed_properties) and $this->_data['assigned_to_id'] != 0) {
+            if (in_array('assigned_to_id', $this->_changed_properties) && $this->_data['assigned_to_id'] != 0) {
                 Notification::send_to($this->_data['assigned_to_id'], 'ticket_assigned', array('ticket' => $this, 'project' => $this->project));
             }
 
@@ -623,11 +636,9 @@ class Ticket extends Model
      */
     public function fetch_custom_fields()
     {
-        if (isset($this->_custom_fields)) {
+        if (count($this->_custom_fields)) {
             return $this->_custom_fields;
         }
-
-        $this->_custom_fields = array();
 
         $values = CustomFieldValue::select()->where('ticket_id', $this->id)->exec()->fetch_all();
         foreach ($values as $value) {

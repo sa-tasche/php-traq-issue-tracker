@@ -517,6 +517,11 @@ class enUS extends \traq\libraries\Locale
                 'you_must_wait_x'      => "You must wait {1}",
                 'display_order' => 'Display order must be a number',
 
+                // Attachments
+                'attachments' => [
+                    'unable_to_upload_file' => 'Unable to upload the attached file',
+                ],
+
                 // Custom fields
                 'custom_fields' => array(
                     'x_required'     => "{1} is required",
@@ -649,6 +654,7 @@ class enUS extends \traq\libraries\Locale
 
             // Testing purposes only...
             'test' => array(
+                'Test',
                 'plurals' => "There {plural:{1}, {is {1} bottle|are {1} bottles}} of scotch on the shelf."
             )
         );

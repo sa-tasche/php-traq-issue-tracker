@@ -1,7 +1,7 @@
 /*!
  * Traq
- * Copyright (C) 2009-2022 Jack Polgar
- * Copyright (C) 2012-2022 Traq.io
+ * Copyright (C) 2009-2023 Jack Polgar
+ * Copyright (C) 2012-2023 Traq.io
  * https://github.com/nirix
  * http://traq.io
  *
@@ -20,21 +20,19 @@
  * along with Traq. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import "./css/main.css"
-import "./main/FontAwesome"
-import EasyMDE from "easymde"
+import type { Alpine } from 'alpinejs'
+import type { EasyMDE } from 'easymde'
 
-window.EasyMDE = EasyMDE
-
-// Alpinejs for simpler UI tasks
-import Alpine from "alpinejs"
-
-import "./main/PopoverConfirm"
-import "./main/TicketTasks"
-import "./main/TicketTemplates"
-import "./main/RemoteMDE"
-import "./main/EasyMDE"
-import "./main/NavbarSearch"
-
-window.Alpine = Alpine
-Alpine.start()
+declare global {
+  interface Window {
+    Alpine: Alpine
+    EasyMDE: EasyMDE
+    traq: {
+      base: string
+      project_slug: string
+    }
+    language: {
+      [key: string]: string
+    }
+  }
+}
